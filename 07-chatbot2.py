@@ -3,21 +3,27 @@ from langchain_openai import ChatOpenAI
 import os
 
 
-# ChatOpenAI 모델 초기화
-chat = ChatOpenAI(temperature=0)
-
 # Streamlit UI 설정
 st.set_page_config(page_title="ChatOpenAI Demo", page_icon=":robot:")
 st.header("ChatOpenAI Demo")
 
+
 with st.sidebar:
-    openai_api_key = st.text_input("OpenAI API Key", key="chatbot_api_key", type="password")
+    openai_api_key = st.text_input(
+        "OpenAI API Key", key="chatbot_api_key", type="password"
+    )
 
 if openai_api_key:
     os.environ["OPENAI_API_KEY"] = openai_api_key
 else:
     st.info("Please add your OpenAI API key to continue.")
     st.stop()
+
+
+# ChatOpenAI 모델 초기화
+chat = ChatOpenAI(temperature=0)
+
+
 # 세션 상태 초기화
 if "messages" not in st.session_state:
     st.session_state.messages = [
@@ -36,12 +42,12 @@ if prompt:
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
-    
+
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         full_response = ""
         for response in chat.stream(st.session_state.messages):
-            full_response += (response.content or "")
+            full_response += response.content or ""
             message_placeholder.markdown(full_response + "▌")
         message_placeholder.markdown(full_response)
     st.session_state.messages.append({"role": "assistant", "content": full_response})
